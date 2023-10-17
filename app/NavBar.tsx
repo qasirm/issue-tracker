@@ -1,21 +1,14 @@
 "use client";
-
+import { Skeleton } from "@/app/components";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React from "react";
 import { AiFillBug } from "react-icons/ai";
 import classnames from "classnames";
-import { Box, Container, Flex } from "@radix-ui/themes";
+import { Avatar, Box, Container, DropdownMenu, Flex } from "@radix-ui/themes";
 import { useSession } from "next-auth/react";
 
 const NavBar = () => {
-  const { status, data: session } = useSession();
-
-  const currentPath = usePathname();
-  const links = [
-    { label: "Dashboard", href: "/" },
-    { label: "Issues", href: "/issues" },
-  ];
   return (
     <nav className="flex space-x-6 border-b mb-5 px-5 h-14 items-center">
       <Container>
@@ -24,30 +17,9 @@ const NavBar = () => {
             <Link href="/">
               <AiFillBug />
             </Link>
-            <ul className="flex space-x-6">
-              {links.map((link) => (
-                <Link
-                  key={link.href}
-                  className={classnames({
-                    "text-zinc-900": link.href === currentPath,
-                    "text-zinc-500": link.href !== currentPath,
-                    "hover:text-zinc-800 transition-colors": true,
-                  })}
-                  href={link.href}
-                >
-                  {link.label}
-                </Link>
-              ))}
-            </ul>
+            <NavLinks />
           </Flex>
-          <Box>
-            {status === "authenticated" && (
-              <Link href="/api/auth/signout">Log Out</Link>
-            )}
-            {status === "unauthenticated" && (
-              <Link href="/api/auth/signin">Log in</Link>
-            )}
-          </Box>
+          <AuthStatus />
         </Flex>
       </Container>
     </nav>
@@ -55,3 +27,60 @@ const NavBar = () => {
 };
 
 export default NavBar;
+
+const NavLinks = () => {
+  const currentPath = usePathname();
+  const links = [
+    { label: "Dashboard", href: "/" },
+    { label: "Issues", href: "/issues" },
+  ];
+  return (
+    <ul className="flex space-x-6">
+      {links.map((link) => (
+        <Link
+          key={link.href}
+          className={classnames({
+            "nav-link": true,
+            "!text-zinc-900": link.href === currentPath,
+          })}
+          href={link.href}
+        >
+          {link.label}
+        </Link>
+      ))}
+    </ul>
+  );
+};
+
+const AuthStatus = () => {
+  const { status, data: session } = useSession();
+
+  if (status === "loading") return <Skeleton width="3rem" />;
+  if (status === "unauthenticated")
+    return (
+      <Link className="nav-link" href="/api/auth/signin">
+        Log in
+      </Link>
+    );
+  return (
+    <Box>
+      <DropdownMenu.Root>
+        <DropdownMenu.Trigger>
+          <Avatar
+            src={session!.user!.image!}
+            fallback="?"
+            radius="full"
+            size="2"
+            className="cursor-pointer"
+          />
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content>
+          <DropdownMenu.Label>{session!.user!.email!}</DropdownMenu.Label>
+          <DropdownMenu.Item>
+            <Link href="/api/auth/signout">Log Out</Link>
+          </DropdownMenu.Item>
+        </DropdownMenu.Content>
+      </DropdownMenu.Root>
+    </Box>
+  );
+};
