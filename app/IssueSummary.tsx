@@ -1,5 +1,5 @@
 import { Status } from "@prisma/client";
-import { Avatar, Card, Flex, Heading, Table, Text } from "@radix-ui/themes";
+import { Card, Flex, Text } from "@radix-ui/themes";
 import NextLink from "next/link";
 
 interface Props {
@@ -15,9 +15,9 @@ const IssueSummary = ({ open, inProgress, closed }: Props) => {
     { label: "Closed Issues", value: closed, status: "CLOSED" },
   ];
   return (
-    <Flex gap="4">
+    <Flex gap="4" width="100%">
       {containers.map((container) => (
-        <Card key={container.label}>
+        <Card key={container.label} style={{ width: "100%" }}>
           <Flex direction="column" gap="1">
             <NextLink
               className="text-sm font-medium"

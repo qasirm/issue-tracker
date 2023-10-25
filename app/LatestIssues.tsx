@@ -6,15 +6,14 @@ import NextLink from "next/link";
 const LatestIssues = async () => {
   const issues = await prisma.issue.findMany({
     orderBy: { createdAt: "desc" },
-    take: 5,
     include: { assignedToUser: true },
   });
   return (
-    <Card>
-      <Heading size="4" mb="5">
+    <Card className="p-3 h-96">
+      <Heading size="4" mb="2">
         Latest Issues
       </Heading>
-      <Table.Root>
+      <Table.Root style={{ overflow: "auto" }}>
         <Table.Body>
           {issues.map((issue) => (
             <Table.Row key={issue.id}>
